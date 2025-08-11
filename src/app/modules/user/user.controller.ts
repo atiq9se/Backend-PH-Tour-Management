@@ -4,7 +4,7 @@ import { UserServices } from "./user.service";
 
 const createUser = async(req: Request, res: Response)=>{
     try{
-       
+    //    throw new Error("Fake ERROR")
        const user = await UserServices.createUser(req.body)
     
        res.status(httpStatus.CREATED).json({
@@ -14,10 +14,7 @@ const createUser = async(req: Request, res: Response)=>{
 
     }catch(err: any){
         console.log(err);
-        res.status(httpStatus.BAD_REQUEST).json({
-            message: `Something went wrong ${err.message}`,
-            err
-        })
+        next(err)
     }
 }
 

@@ -1,11 +1,11 @@
-import { NextFunction } from 'express';
+import { httpStatus } from 'http-status-codes';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from "express";
-import httpStatus from "http-status-codes"
+
 import { UserServices } from "./user.service";
-import AppError from "../../errorHelpers/AppError";
 import { catchAsync } from '../../utils/catchAsync';
-import { success } from 'zod';
+import { sendResponse } from '../../utils/sendResponse';
 
 
 
@@ -37,9 +37,16 @@ import { success } from 'zod';
 const createUser = catchAsync(async(req: Request, res: Response, next: NextFunction)=>{
     const user = await UserServices.createUser(req.body)
         
-    res.status(httpStatus.CREATED).json({
-            message: "User created successfully",
-            user
+    // res.status(httpStatus.CREATED).json({
+    //         message: "User created successfully",
+    //         user
+    // })
+
+    sendResponse(res, {
+        success: true,
+        StatusCode: httpStatus.CREATED,
+        message: "user created successfullly",
+        data: user,
     })
 })
 
@@ -54,11 +61,20 @@ const createUser = catchAsync(async(req: Request, res: Response, next: NextFunct
 // }
 
 const getAllUsers = catchAsync(async(req: Request, res: Response, next: NextFunction)=>{
-     const users = await UserServices.getAllUsers();
-     res.status(httpStatus.OK).json({
-            success: true,
-            message: "all Users retrieved successfully",
-            users
+     const result = await UserServices.getAllUsers();
+    //  res.status(httpStatus.OK).json({
+    //         success: true,
+    //         message: "all Users retrieved successfully",
+    //         data: users
+    // })
+
+     sendResponse(res, {
+        success: true,
+        StatusCode: httpStatus.CREATED,
+        message: "user retrived successfullly",
+        data: result.data,
+        meta: result.meta
+
     })
 })
 
@@ -67,6 +83,6 @@ export const UserControllers = {
     getAllUsers
 }
 
-function next(err: any) {
-    throw new Error("Function not implemented.");
-}
+// function next(err: any) {
+//     throw new Error("Function not implemented.");
+// }

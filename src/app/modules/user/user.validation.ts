@@ -1,4 +1,5 @@
 import z from "zod";
+import { IsActive, Role } from "./user.interface";
 
 export const createUserZodSchema = z.object({
             name: z
@@ -28,4 +29,43 @@ export const createUserZodSchema = z.object({
                    .string({ invalid_type_error: "Address must be string" })
                    .max(300, { message: "Address cannot exceed 300 characters."})
                    .optional()
+        })
+
+export const updateUserZodSchema = z.object({
+            name: z
+                .string({ invalid_type_error: "Name must be string" })
+                .min   (2, {message: "Name must be at least two characters long."})
+                .max   (60, {message: "Name cannot exceed sixty characters."}).optional(),
+            
+            password: z
+                   .string({ invalid_type_error: "Email must be string" })
+                   .min   (8, { message: "Email must be at least 8 characters long." })
+                   .regex (/^(?=.*[A-Z])/, { message: "Password must contain at least 1 uppercase letter."})
+                   .regex (/^(?=.*[!@#$%^&*])/, { message: "Password must contain at least 1 special character."})
+                   .regex (/^(?=.*\d)/, { message: "Password must contain at least 1 number."}).optional(),
+            
+            phone: z
+                 .string({ invalid_type_error: "Phone must be string" })
+                 .regex (/^(?:\+8801\d{9}|01\d{9})$/, { message: "Phone number must be valid for Bangladesh. Format: +8801xxxxxxxxx or 01xxxxxxxxx"})
+                 .optional().optional(),
+            
+            address: z
+                   .string({ invalid_type_error: "Address must be string" })
+                   .max(300, { message: "Address cannot exceed 300 characters."})
+                   .optional(),
+
+                
+                role        : z
+                            // .enum(["ADMIN", "GUIDE", "USER", "SUPER_ADMIN"])
+                            .enum(Object.values(Role) as [string])
+                            .optional(),
+                isActive    : z
+                            .enum(Object.values(IsActive) as [string])
+                            .optional(),
+                isDeleted  : z
+                            .boolean({ invalid_type_error: "isDeleted must be true or false" })
+                            .optional(),
+                isVerified : z
+                            .boolean({ invalid_type_error: "isVerified must be true or false" })
+                            .optional(),
         })

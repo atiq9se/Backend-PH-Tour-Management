@@ -1,14 +1,10 @@
-import { httpStatus } from 'http-status-codes';
-
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import  httpStatus from 'http-status-codes';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from "express";
-
 import { UserServices } from "./user.service";
 import { catchAsync } from '../../utils/catchAsync';
 import { sendResponse } from '../../utils/sendResponse';
-
-
-
 
 // const createUserFunction = async(req: Request, res: Response)=>{
 //    const user = await UserServices.createUser(req.body)
@@ -18,8 +14,6 @@ import { sendResponse } from '../../utils/sendResponse';
 //             user
 //     })
 // }
-
-
 
 // const createUser = async(req: Request, res: Response, next:NextFunction)=>{
 //     try{
@@ -34,6 +28,7 @@ import { sendResponse } from '../../utils/sendResponse';
 //         next(err)
 //     }
 // }
+
 const createUser = catchAsync(async(req: Request, res: Response, next: NextFunction)=>{
     const user = await UserServices.createUser(req.body)
         
@@ -44,8 +39,8 @@ const createUser = catchAsync(async(req: Request, res: Response, next: NextFunct
 
     sendResponse(res, {
         success: true,
-        StatusCode: httpStatus.CREATED,
-        message: "user created successfullly",
+        statusCode: httpStatus.CREATED,
+        message: "user created successfully",
         data: user,
     })
 })
@@ -62,6 +57,7 @@ const createUser = catchAsync(async(req: Request, res: Response, next: NextFunct
 
 const getAllUsers = catchAsync(async(req: Request, res: Response, next: NextFunction)=>{
      const result = await UserServices.getAllUsers();
+
     //  res.status(httpStatus.OK).json({
     //         success: true,
     //         message: "all Users retrieved successfully",
@@ -70,11 +66,10 @@ const getAllUsers = catchAsync(async(req: Request, res: Response, next: NextFunc
 
      sendResponse(res, {
         success: true,
-        StatusCode: httpStatus.CREATED,
-        message: "user retrived successfullly",
+        statusCode: httpStatus.CREATED,
+        message: "all user successfully",
         data: result.data,
-        meta: result.meta
-
+        meta: result.meta,
     })
 })
 

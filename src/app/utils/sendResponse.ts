@@ -1,3 +1,4 @@
+import { Response } from "express";
 import { success } from "zod";
 
 interface TMata {
@@ -12,7 +13,7 @@ interface TResponse<T>{
 }
 
 
-export const sendResponse = <T> (res: Response, data: TResponse<T>)=>{
+export const sendResponse = <T> (res: Response, data: TResponse<T>) => {
 
     res.status(data.statusCode).json({
         statusCode: data.statusCode,

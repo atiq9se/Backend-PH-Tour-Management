@@ -17,6 +17,7 @@ export const checkAuth = (...authRoles: string[]) => async(req: Request, res: Re
         if(!authRoles.includes(verifiedToken.role)){
             throw new AppError(403, "you are not permitted to view all user")
         }
+        req.user = verifiedToken
         next();
     }
     catch(error){

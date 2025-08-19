@@ -5,6 +5,7 @@ import { IsActive, IUser } from "../modules/user/user.interface";
 import { generateToken, verifyToken } from "./jwt";
 import { User } from "../modules/user/user.model";
 import AppError from '../errorHelpers/AppError';
+import  httpStatus  from 'http-status-codes';
 
 export const creteUserTokens = (user: Partial<IUser>)=>{
      const jwtPayload = {

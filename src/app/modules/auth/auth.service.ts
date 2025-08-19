@@ -3,7 +3,7 @@ import AppError from "../../errorHelpers/AppError";
 import { IsActive, IUser } from "../user/user.interface"
 import { User } from '../user/user.model';
 import bcryptjs from "bcryptjs";
-import { JwtPayload } from "jsonwebtoken";
+import { Jwt, JwtPayload } from "jsonwebtoken";
 import { generateToken, verifyToken } from '../../utils/jwt';
 import { envVars } from '../../config/.env';
 import { createNewAccessTokenWithRefreshToken, creteUserTokens } from '../../utils/userTokens';
@@ -52,11 +52,23 @@ const getNewAccessToken = async(refreshToken: string) => {
     return {
         accessToken: newAccessToken
     }
+}
+
+const resetPassword = async(oldPassword: string, newPassword: string, decodedToken: JwtPayload) => {
+     const user = await User.findById(decodedToken.userId)
+     const isOldPasswordMatch = await bcryptjs.compare(oldPassword, user!.password as string)
+     if(!isOldPasswordMatch){
+        throw new AppError(httpStatus.BAD_REQUEST, "Password does not match")
+    }
+    user!.password = await bcryptjs.hash(newPassword, Number(envVars.BCRYPT_SALT_ROUND))
+
+    user!.save();
 
 }
 
 export const AuthServices = {
     credentialsLogin,
-    getNewAccessToken
+    getNewAccessToken,
+    resetPassword
 
 }

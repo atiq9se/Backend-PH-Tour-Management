@@ -7,7 +7,7 @@ import { User } from "../modules/user/user.model";
 import AppError from '../errorHelpers/AppError';
 import  httpStatus  from 'http-status-codes';
 
-export const creteUserTokens = (user: Partial<IUser>)=>{
+export const createUserTokens = (user: Partial<IUser>)=>{
      const jwtPayload = {
         userId: user._id,
         email: user.email,

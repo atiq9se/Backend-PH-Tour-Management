@@ -6,7 +6,7 @@ import bcryptjs from "bcryptjs";
 import { Jwt, JwtPayload } from "jsonwebtoken";
 import { generateToken, verifyToken } from '../../utils/jwt';
 import { envVars } from '../../config/.env';
-import { createNewAccessTokenWithRefreshToken, creteUserTokens } from '../../utils/userTokens';
+import { createNewAccessTokenWithRefreshToken, createUserTokens } from '../../utils/userTokens';
 
 
 const credentialsLogin = async(payload: Partial<IUser>) => {
@@ -34,7 +34,7 @@ const credentialsLogin = async(payload: Partial<IUser>) => {
     
     // const refreshToken = generateToken(jwtPayload, envVars.JWT_REFRESH_SECRET, envVars.JWT_REFRESH_EXPIRES)
 
-    const userTokens = creteUserTokens(isUserExist)
+    const userTokens = createUserTokens(isUserExist)
 
    // eslint-disable-next-line @typescript-eslint/no-unused-vars
    const {password: pass, ...rest} = isUserExist.toObject();

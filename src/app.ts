@@ -9,6 +9,8 @@ import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import expressSession from "express-session"
 
+import "./app/config/passport"
+
 
 const app = express();
 

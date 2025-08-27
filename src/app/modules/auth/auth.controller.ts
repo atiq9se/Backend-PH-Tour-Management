@@ -18,11 +18,15 @@ const credentialsLogin = catchAsync(async(req: Request, res: Response, next: Nex
         if(err){
             //throw new apperror(401, "some error")
             //next(err)
-            return new AppError(401, err)
+            //return new AppError(401, err)
+
+            
             //return next(err)
+            return next(new AppError(401, err))
         }
         if(!user){
-            return new AppError(401, info)
+            // return new AppError(401, info)
+            return next(new AppError(401, info.message))
         }
 
         const userTokens = await createUserTokens(user)

@@ -16,8 +16,13 @@ passport.use(
   }, async(email: string, password: string, done)=>{
     try{
       const isUserExist = await User.findOne({email})
+
+      // if(!isUserExist){
+      //   return done(null, false, "User done not exist")
+      // }
+
       if(!isUserExist){
-        return done(null, false, "User done not exist")
+        return done("user does not exist")
       }
 
       const isGoogleAuthenticated = isUserExist.auths.some(providerObjects => providerObjects.provider == "google")

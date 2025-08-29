@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express"
 import { envVars } from "../config/.env"
@@ -19,10 +20,13 @@ export const globalErrorHandler = (err:any, req: Request, res: Response, next: N
      * 
      */
 
-    const errorSource = [
-
+    const errorSources: any = [
+        //   {
+        //     path: "isDeleted",
+        //     message: "cast is error"
+        //   }
     ]
-    
+
     let statusCode = 500;
     let message = `Something went wrong!!`
     
@@ -39,16 +43,32 @@ export const globalErrorHandler = (err:any, req: Request, res: Response, next: N
         message = "Invalid MongoDB ObjectID. Please provide a valid id"
     }
 
+    // zod validation
+    else if(err.name === "ZodError"){
+        statusCode = 400;
+
+        message = "zod validation"
+        console.log(err.issues)
+        err.issues.forEach((issue: any) => {
+            errorSources.push({
+                path: issue.path[issue.path.length-1],
+                message: issue.message
+            })
+        });
+    }
+
+
+    // Mongoose validation
     else if(err.name === "ValidationError"){
         statusCode = 400;
 
         const errors = Object.values(err.errors)
-        errors.forEach((errorObject: any)=> errorSource.push({
+        errors.forEach((errorObject: any)=> errorSources.push({
                 path: errorObject.path,
                 message: errorObject.message
             }))
 
-        message = "Validation Error werwe Occurred"
+        message = "Validation Error Occurred"
     }
 
     else if(err instanceof AppError){
@@ -62,8 +82,8 @@ export const globalErrorHandler = (err:any, req: Request, res: Response, next: N
     res.status(statusCode).json({
         success: false,
         message,
-        errorSource,
-        // err,
+        errorSources,
+        err,
         stack: envVars.NODE_ENV=== "development" ? err.stack: null
 
     })

@@ -19,9 +19,14 @@ export const globalErrorHandler = (err:any, req: Request, res: Response, next: N
      * 
      */
 
+    const errorSource = [
+
+    ]
+    
     let statusCode = 500;
     let message = `Something went wrong!!`
-
+    
+ 
     //Duplicate error
     if(err.code === 11000){
         const matchedArray = err.message.match(/"([^"]*)"/)
@@ -32,6 +37,18 @@ export const globalErrorHandler = (err:any, req: Request, res: Response, next: N
     else if(err.name === "CastError"){
         statusCode = 400;
         message = "Invalid MongoDB ObjectID. Please provide a valid id"
+    }
+
+    else if(err.name === "ValidationError"){
+        statusCode = 400;
+
+        const errors = Object.values(err.errors)
+        errors.forEach((errorObject: any)=> errorSource.push({
+                path: errorObject.path,
+                message: errorObject.message
+            }))
+
+        message = "Validation Error werwe Occurred"
     }
 
     else if(err instanceof AppError){
@@ -45,7 +62,8 @@ export const globalErrorHandler = (err:any, req: Request, res: Response, next: N
     res.status(statusCode).json({
         success: false,
         message,
-        err,
+        errorSource,
+        // err,
         stack: envVars.NODE_ENV=== "development" ? err.stack: null
 
     })

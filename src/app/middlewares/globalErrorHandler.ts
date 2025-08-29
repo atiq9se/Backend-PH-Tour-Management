@@ -5,15 +5,41 @@ import AppError from "../errorHelpers/AppError";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const globalErrorHandler = (err:any, req: Request, res: Response, next: NextFunction )=>{
-    let statusCode = 500;
-    let message = `Something went wrong!! ${err.message}`
+    console.log(err)
 
-    if(err instanceof AppError){
+    /**
+     * Mongoose
+     * zod
+     */
+
+    /**
+     * Mongoose
+     * -Duplicate
+     * -Cast Error
+     * 
+     */
+
+    let statusCode = 500;
+    let message = `Something went wrong!!`
+
+    //Duplicate error
+    if(err.code === 11000){
+        const matchedArray = err.message.match(/"([^"]*)"/)
+        statusCode = 400;
+        message = `${duplicate[1]} already exists!!`
+    }
+    // cast error
+    else if(err.name === "CastError"){
+        statusCode = 400;
+        message = "Invalid MongoDB ObjectID. Please provide a valid id"
+    }
+
+    else if(err instanceof AppError){
         statusCode = err.statusCode
         message = err.message
     }else if(err instanceof Error){
         statusCode = 500;
-        message = err.message
+        message = err.message 
     }
 
     res.status(statusCode).json({

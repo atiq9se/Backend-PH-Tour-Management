@@ -1,4 +1,4 @@
-import { bcryptjs } from 'bcryptjs';
+import  bcryptjs  from 'bcryptjs';
 import { httpStatus } from 'http-status-codes';
 import { User } from './../modules/user/user.model';
 import passport from "passport";

@@ -7,7 +7,7 @@ import { handleDuplicateError } from "../helpers/handleDuplicateError";
 import { handleCastError } from "../helpers/handleCastError";
 import { handleZodError } from "../helpers/handleZodError";
 import { handleValidationError } from "../helpers/handleValidationError";
-import { TGenericErrorResponse } from "../interfaces/error.types";
+import { TErrorSources, TGenericErrorResponse } from "../interfaces/error.types";
 
 
 
@@ -30,7 +30,7 @@ export const globalErrorHandler = (err:any, req: Request, res: Response, next: N
      * 
      */
 
-    let errorSources: TGenericErrorResponse[] = [
+    let errorSources: TErrorSources[] = [
         //   {
         //     path: "isDeleted",
         //     message: "cast is error"
@@ -57,7 +57,7 @@ export const globalErrorHandler = (err:any, req: Request, res: Response, next: N
     else if(err.name === "ZodError"){
         const simplifiedError = handleZodError(err)
         statusCode = simplifiedError.statusCode;
-        errorSources = simplifiedError.errorSources
+        errorSources = simplifiedError.errorSources as TErrorSources[]
         message = simplifiedError.message;
     }
 
@@ -66,7 +66,7 @@ export const globalErrorHandler = (err:any, req: Request, res: Response, next: N
     else if(err.name === "ValidationError"){
         const simplifiedError = handleValidationError(err)
         statusCode = simplifiedError.statusCode;
-        errorSources = simplifiedError.errorSources
+        errorSources = simplifiedError.errorSources as TErrorSources[]
         message = simplifiedError.message;
     }
 
@@ -82,8 +82,8 @@ export const globalErrorHandler = (err:any, req: Request, res: Response, next: N
         success: false,
         message,
         errorSources,
-        err: envVars.NODE_ENV === "development" ? err: null,
-        stack: envVars.NODE_ENV=== "development" ? err.stack: null
+        err   : envVars.NODE_ENV === "development" ? err: null,
+        stack : envVars.NODE_ENV === "development" ? err.stack: null
 
     })
 }

@@ -97,29 +97,46 @@ const createTour = async (payload: ITour) => {
 // };
 
 const getAllTours = async (query: Record<string, string>) => {
+    
+    const filter = query
+    searchTerm = query.searchTerm
+    const tours = await Tour.find({
+        title: {$regex: "Fish"}
+    });
 
+    //location = dhaka
+    //search = Golf
 
-    const queryBuilder = new QueryBuilder(Tour.find(), query)
-
-    const tours = await queryBuilder
-        .search(tourSearchableFields)
-        .filter()
-        .sort()
-        .fields()
-        .paginate()
-
-    // const meta = await queryBuilder.getMeta()
-
-    const [data, meta] = await Promise.all([
-        tours.build(),
-        queryBuilder.getMeta()
-    ])
-
+    const totalTours = await Tour.countDocuments();
 
     return {
-        data,
-        meta
+        data: tours,
+        meta: {
+            total: totalTours
+        }
     }
+
+    // const queryBuilder = new QueryBuilder(Tour.find(), query)
+
+    // const tours = await queryBuilder
+    //     .search(tourSearchableFields)
+    //     .filter()
+    //     .sort()
+    //     .fields()
+    //     .paginate()
+
+    // // const meta = await queryBuilder.getMeta()
+
+    // const [data, meta] = await Promise.all([
+    //     tours.build(),
+    //     queryBuilder.getMeta()
+    // ])
+
+
+    // return {
+    //     data,
+    //     meta
+    // }
 };
 
 

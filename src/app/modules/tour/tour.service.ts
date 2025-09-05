@@ -97,12 +97,16 @@ const createTour = async (payload: ITour) => {
 // };
 
 const getAllTours = async (query: Record<string, string>) => {
-    
+    console.log(query)
     const filter = query
-    searchTerm = query.searchTerm
-    const tours = await Tour.find({
-        title: {$regex: "Fish"}
-    });
+    const searchTerm = query.searchTerm || "";
+    console.log(searchTerm);
+
+    const searchQuery = {
+        $or: tourSearchableFields.map(field=>({[field]: {$regex: searchTerm, $options: "i"}}))
+    }
+
+    const tours = await Tour.find(searchQuery);
 
     //location = dhaka
     //search = Golf

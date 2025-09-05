@@ -102,9 +102,12 @@ const getAllTours = async (query: Record<string, string>) => {
     const filter = query
     const searchTerm = query.searchTerm || "";
     const sort = query.sort || "-createdAt";
+    const page =Number( query.page) || 1;
+    const limit = Number(query.limit) || 10
+    const skip = (page-1)*limit
 
     //field filtering
-    const fields = query.fields.split(",").join(" ") || "";
+    const fields = query.fields?.split(",").join(" ") || "";
 
     // delete filter["searchTerm"]
     // delete filter["sort"]
@@ -119,7 +122,17 @@ const getAllTours = async (query: Record<string, string>) => {
         $or: tourSearchableFields.map(field=>({[field]: {$regex: searchTerm, $options: "i"}}))
     }
 
-    const tours = await Tour.find(searchQuery).find(filter).sort(sort).select(fields);
+    //[remove][remove][remove](skip)[][][][][][][]
+    //[][][][][](limit)[remove][remove][remove][remove]
+
+    //1 page => [1][1][1][1][1][1] skip = 0 limit = 10
+    //2 page => [1][1][1][1][1][1] skip> [2][2][2] skip = 10 limit = 10
+    // 3 page => [1][1][1]=> skip=> [2][2][2]  skip = 20 limit = 10
+
+    // skip = (page -1)*10 = 30
+    // limit = 10
+
+    const tours = await Tour.find(searchQuery).find(filter).sort(sort).select(fields).skip(skip).limit(limit);
 
     //location = dhaka
     //search = Golf

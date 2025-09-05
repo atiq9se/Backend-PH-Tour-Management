@@ -1,4 +1,5 @@
 
+import { excludeField } from "../../utils/constants";
 import { QueryBuilder } from "../../utils/QueryBuilder";
 import { tourSearchableFields } from "./tour.constant";
 import { ITour, ITourType } from "./tour.interface";
@@ -100,13 +101,25 @@ const getAllTours = async (query: Record<string, string>) => {
     console.log(query)
     const filter = query
     const searchTerm = query.searchTerm || "";
-    console.log(searchTerm);
+    const sort = query.sort || "-createdAt";
+
+    //field filtering
+    const fields = query.fields.split(",").join(" ") || "";
+
+    // delete filter["searchTerm"]
+    // delete filter["sort"]
+
+    for(const field of excludeField){
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+        delete filter[field]
+    }
+
 
     const searchQuery = {
         $or: tourSearchableFields.map(field=>({[field]: {$regex: searchTerm, $options: "i"}}))
     }
 
-    const tours = await Tour.find(searchQuery);
+    const tours = await Tour.find(searchQuery).find(filter).sort(sort).select(fields);
 
     //location = dhaka
     //search = Golf

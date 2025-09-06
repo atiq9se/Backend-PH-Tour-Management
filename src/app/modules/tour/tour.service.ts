@@ -97,65 +97,17 @@ const createTour = async (payload: ITour) => {
 //     }
 // };
 
+
+
 const getAllTours = async (query: Record<string, string>) => {
-    console.log(query)
-    const filter = query
-    const searchTerm = query.searchTerm || "";
-    const sort = query.sort || "-createdAt";
-    const page =Number( query.page) || 1;
-    const limit = Number(query.limit) || 10
-    const skip = (page-1)*limit
-
-    //field filtering
-    const fields = query.fields?.split(",").join(" ") || "";
-
-    // delete filter["searchTerm"]
-    // delete filter["sort"]
-
-    for(const field of excludeField){
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-        delete filter[field]
-    }
 
 
-    const searchQuery = {
-        $or: tourSearchableFields.map(field=>({[field]: {$regex: searchTerm, $options: "i"}}))
-    }
-
-    //[remove][remove][remove](skip)[][][][][][][]
-    //[][][][][](limit)[remove][remove][remove][remove]
-
-    //1 page => [1][1][1][1][1][1] skip = 0 limit = 10
-    //2 page => [1][1][1][1][1][1] skip> [2][2][2] skip = 10 limit = 10
-    // 3 page => [1][1][1]=> skip=> [2][2][2]  skip = 20 limit = 10
-
-    // skip = (page -1)*10 = 30
-    // limit = 10
-
-    // const tours = await Tour.find(searchQuery).find(filter).sort(sort).select(fields).skip(skip).limit(limit);
-
-    const filterQuery = Tour.find(filter)
-
-    const tours = filterQuery.find(searchQuery)
-
-    const allTours = await tours.sort(sort).select(fields).skip(skip).limit(limit)
-
-    //location = dhaka
-    //search = Golf
-
-    const totalTours = await Tour.countDocuments();
-    const totalPage = Math.ceil(totalTours/limit);
-
-    const meta = {
-        page: page,
-        limit: limit,
-        total: totalTours,
-        totalPage: totalPage
-    }
+   const queryBuilder = new QueryBuilder(Tour.find(), query)
+   const tours = await queryBuilder.search(tourSearchableFields).filter().modelQuery
 
     return {
-        data: allTours,
-        meta: meta
+        data: tours,
+        // meta: meta
     }
 
     // const queryBuilder = new QueryBuilder(Tour.find(), query)

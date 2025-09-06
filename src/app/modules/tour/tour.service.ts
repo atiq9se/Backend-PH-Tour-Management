@@ -132,18 +132,30 @@ const getAllTours = async (query: Record<string, string>) => {
     // skip = (page -1)*10 = 30
     // limit = 10
 
-    const tours = await Tour.find(searchQuery).find(filter).sort(sort).select(fields).skip(skip).limit(limit);
+    // const tours = await Tour.find(searchQuery).find(filter).sort(sort).select(fields).skip(skip).limit(limit);
+
+    const filterQuery = Tour.find(filter)
+
+    const tours = filterQuery.find(searchQuery)
+
+    const allTours = await tours.sort(sort).select(fields).skip(skip).limit(limit)
 
     //location = dhaka
     //search = Golf
 
     const totalTours = await Tour.countDocuments();
+    const totalPage = Math.ceil(totalTours/limit);
+
+    const meta = {
+        page: page,
+        limit: limit,
+        total: totalTours,
+        totalPage: totalPage
+    }
 
     return {
-        data: tours,
-        meta: {
-            total: totalTours
-        }
+        data: allTours,
+        meta: meta
     }
 
     // const queryBuilder = new QueryBuilder(Tour.find(), query)

@@ -1,6 +1,5 @@
 
 import { excludeField } from "../../utils/constants";
-import { QueryBuilder } from "../../utils/QueryBuilder";
 import { tourSearchableFields } from "./tour.constant";
 import { ITour, ITourType } from "./tour.interface";
 import { Tour, TourType } from "./tour.model";
@@ -101,36 +100,28 @@ const createTour = async (payload: ITour) => {
 
 const getAllTours = async (query: Record<string, string>) => {
 
-
    const queryBuilder = new QueryBuilder(Tour.find(), query)
-   const tours = await queryBuilder.search(tourSearchableFields).filter().modelQuery
+
+   const tours = await queryBuilder
+                       .search(tourSearchableFields)
+                       .filter().modelQuery
+                       .sort()
+                       .fields()
+                       .paginate()
+                       .build()
+    
+    // const meta = await queryBuilder.getMeta()
+
+    const [data, meta] = Promise.all([
+        tours.build(),
+        queryBuilder.getMeta()
+    ])
 
     return {
-        data: tours,
-        // meta: meta
+        data,
+        meta
     }
 
-    // const queryBuilder = new QueryBuilder(Tour.find(), query)
-
-    // const tours = await queryBuilder
-    //     .search(tourSearchableFields)
-    //     .filter()
-    //     .sort()
-    //     .fields()
-    //     .paginate()
-
-    // // const meta = await queryBuilder.getMeta()
-
-    // const [data, meta] = await Promise.all([
-    //     tours.build(),
-    //     queryBuilder.getMeta()
-    // ])
-
-
-    // return {
-    //     data,
-    //     meta
-    // }
 };
 
 

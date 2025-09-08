@@ -1,5 +1,5 @@
+import { QueryBuilder } from './../../utils/QueryBuilder';
 
-import { excludeField } from "../../utils/constants";
 import { tourSearchableFields } from "./tour.constant";
 import { ITour, ITourType } from "./tour.interface";
 import { Tour, TourType } from "./tour.model";
@@ -9,16 +9,6 @@ const createTour = async (payload: ITour) => {
     if (existingTour) {
         throw new Error("A tour with this title already exists.");
     }
-
-    const baseSlug = payload.title.toLowerCase().split(" ").join("-")
-    let slug = `${baseSlug}`
-
-    let counter = 0;
-    while (await Tour.exists({ slug })) {
-        slug = `${slug}-${counter++}` // dhaka-division-2
-    }
-
-    payload.slug = slug;
 
     const tour = await Tour.create(payload)
 
@@ -51,8 +41,6 @@ const createTour = async (payload: ITour) => {
 //     }
 
 //     console.log(filter);
-
-
 
 //     const searchQuery = {
 //         $or: tourSearchableFields.map(field => ({ [field]: { $regex: searchTerm, $options: "i" } }))
@@ -112,7 +100,7 @@ const getAllTours = async (query: Record<string, string>) => {
     
     // const meta = await queryBuilder.getMeta()
 
-    const [data, meta] = Promise.all([
+    const [data, meta] = await Promise.all([
         tours.build(),
         queryBuilder.getMeta()
     ])

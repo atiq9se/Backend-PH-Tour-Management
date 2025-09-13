@@ -21,11 +21,10 @@ const getAllTours = async (query: Record<string, string>) => {
 
    const tours = await queryBuilder
                        .search(tourSearchableFields)
-                       .filter().modelQuery
+                       .filter()
                        .sort()
                        .fields()
                        .paginate()
-                       .build()
     
     // const meta = await queryBuilder.getMeta()
 
@@ -68,7 +67,7 @@ const createTourType = async (payload: ITourType) => {
         throw new Error("Tour type already exists.");
     }
 
-    const newTourType =  await TourType.create({ name: payload.name });
+    const newTourType =  await TourType.create(payload);
     return newTourType;
 };
 

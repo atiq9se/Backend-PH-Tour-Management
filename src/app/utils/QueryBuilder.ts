@@ -7,7 +7,7 @@ export class QueryBuilder<T>{
 
     constructor(modelQuery: Query<T[], T>, query: Record<string, string>){
         this.modelQuery = modelQuery;
-        this.query = query;
+        this.query      = query;
     }
 
     filter(): this{
@@ -21,7 +21,7 @@ export class QueryBuilder<T>{
     }
 
     search(searchableField: string[]): this{
-        const searchTerm = this.query.searchTerm || ""
+        const searchTerm  = this.query.searchTerm || ""
         const searchQuery = {
             $or: searchableField.map(field=>({[field]: {$regex: searchTerm, $options: "i"}}))
         }
@@ -30,21 +30,21 @@ export class QueryBuilder<T>{
     }
 
     sort(): this{
-        const sort = this.query.sort || "-createdAt";
+        const sort      = this.query.sort || "-createdAt";
         this.modelQuery = this.modelQuery.sort(sort)
         return this;
     }
 
     fields(): this{
-        const fields = this.query.fields?.split(",").join(" ") || ""
+        const fields    = this.query.fields?.split(",").join(" ") || ""
         this.modelQuery = this.modelQuery.select(fields)
         return this;
     }
 
     paginate(): this{
-        const page = Number(this.query.page) || 1
-        const limit = Number(this.query.limit) || 10
-        const skip = (page - 1) * limit
+        const page      = Number(this.query.page) || 1
+        const limit     = Number(this.query.limit) || 10
+        const skip      = (page - 1) * limit
         this.modelQuery = this.modelQuery.skip(skip).limit(limit)
         return this;
     }
@@ -55,9 +55,9 @@ export class QueryBuilder<T>{
 
     async getMeta(){
         const totalDocuments = await this.modelQuery.model.countDocuments()
-        const page = Number(this.query.page) || 1
-        const limit = Number(this.query.limit) || 10
-        const totalPage = Math.ceil(totalDocuments/limit)
+        const page           = Number(this.query.page) || 1
+        const limit          = Number(this.query.limit) || 10
+        const totalPage      = Math.ceil(totalDocuments/limit)
         return {page, limit, total: totalDocuments, totalPage}
     }
 

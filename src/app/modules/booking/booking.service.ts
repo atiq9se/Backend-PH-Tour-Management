@@ -7,14 +7,27 @@ import { BOOKING_STATUS, IBooking } from './booking.interface';
 import { PAYMENT_STATUS } from '../payment/payment.interface';
 
 const getTransactionId = () =>{
-    return `tran_${Date.now()}`
+    return `tran_${Date.now()}_${Math.floor(Math.random()*1000)}`
 }
 
 const createBooking = async (payload : Partial<IBooking>, userId: string)=>{
     const user = await User.findById(userId);
+
+
+    
+    const transactionId = getTransactionId()
+
     if(!user?.phone || !user.address){
        throw new AppError(httpStatus.BAD_REQUEST, "Please update your porfile to book a tour")
     }
+
+    const tour = await Tour.findById(payload.tour).select("costFrom")
+    if(!tour?.costFrom){
+        throw new AppError(httpStatus.BAD_REQUEST, "No tour cost found")
+    }
+    
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const amount = Number(tour.costFrom)* Number(payload.guestCount!)
 
     const booking = await Booking.create({
         user: userId,
@@ -25,10 +38,18 @@ const createBooking = async (payload : Partial<IBooking>, userId: string)=>{
     const payment = await Payment.create({
         booking: booking._id,
         status: PAYMENT_STATUS.UNPAID,
-        transactionId: 
+        transactionId: transactionId,
+        amount: amount
     })
 
-    return{}
+    const updateBooking = await Booking
+    .findByIdAndUpdate(
+        booking._id,
+        {payment: payment._id},
+        {new:true, runValidators: true}
+    ).populate("user").populate("tour").populate("payment");
+
+    return updateBooking
 }
 
 const getUserBookings = async () =>{

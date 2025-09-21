@@ -25,7 +25,7 @@ const createBooking = async (payload : Partial<IBooking>, userId: string)=>{
        throw new AppError(httpStatus.BAD_REQUEST, "Please update your porfile to book a tour")
     }
 
-    const tour = await Tour.findById(payload.tour).select("costFrom")
+    const tour = await Tour.findById(payload.tour, session).select("costFrom")
 
     if(!tour?.costFrom){
         throw new AppError(httpStatus.BAD_REQUEST, "No tour cost found")
@@ -34,24 +34,24 @@ const createBooking = async (payload : Partial<IBooking>, userId: string)=>{
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const amount = Number(tour.costFrom)* Number(payload.guestCount!)
 
-    const booking = await Booking.create({
+    const booking = await Booking.create([{
         user: userId,
         status: BOOKING_STATUS.PENDING,
         ...payload
-    }, {session})
+    }], {session})
 
     const payment = await Payment.create({
-        booking: booking._id,
+        booking: booking[0]._id,
         status: PAYMENT_STATUS.UNPAID,
         transactionId: transactionId,
         amount: amount
-    })
+    },{session})
 
     const updateBooking = await Booking
     .findByIdAndUpdate(
-        booking._id,
-        {payment: payment._id},
-        {new:true, runValidators: true}
+        booking[0]._id,
+        {payment: payment[0]._id},
+        {new:true, runValidators: true, session}
     ).populate("user").populate("tour").populate("payment");
 
     await session.commitTransaction();
@@ -59,9 +59,10 @@ const createBooking = async (payload : Partial<IBooking>, userId: string)=>{
 
     return updateBooking
     }
-    catch(error: any){
+    catch(error){
         await session.abortTransaction();
         session.endSession()
+        throw error
     }
 
     

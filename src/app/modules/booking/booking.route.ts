@@ -1,9 +1,9 @@
-import express  from 'express';
-
+import { BookingController } from './booking.controller';
+import { createBookingZodSchema, updateBookingStatusZodSchema } from './booking.validation';
 import { checkAuth } from "../../middlewares/checkAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
 import { Role } from "../user/user.interface";
-
+import express  from 'express';
 const router = express.Router();
 
 

@@ -1,37 +1,60 @@
+import AppError from '../../errorHelpers/AppError';
+import { envVars } from './../../config/.env';
 import { ISSLCommerz } from "./sslCommerz.interface"
+import axios from "axios"
+import httpStatus from "http-status-codes"
 
 const sslPymentInit = (payload : ISSLCommerz)=>{
-    const data = {
-         'store_id=testbox&
-        store_passwd=qwerty&
-        total_amount=100&
-        currency=EUR&
-        tran_id=REF123&
-        success_url=http://yoursite.com/success.php&
-        fail_url=http://yoursite.com/fail.php&
-        cancel_url=http://yoursite.com/cancel.php&
-        cus_name=Customer Name&
-        cus_email=cust@yahoo.com&
-        cus_add1=Dhaka&
-        cus_add2=Dhaka&
-        cus_city=Dhaka&
-        cus_state=Dhaka&
-        cus_postcode=1000&
-        cus_country=Bangladesh&
-        cus_phone=01711111111&
-        cus_fax=01711111111&
-        ship_name=Customer Name&
-        ship_add1 =Dhaka&
-        ship_add2=Dhaka&
-        ship_city=Dhaka&
-        ship_state=Dhaka&
-        ship_postcode=1000&
-        ship_country=Bangladesh&
-        multi_card_name=mastercard,visacard,amexcard&
-        value_a=ref001_A&
-        value_b=ref002_B&
-        value_c=ref003_C&
-        value_d=ref004_D'
+    try{
+       const data = {
+        store_id: envVars.SSL_STORE_ID,
+        store_passwd: envVars.SSL_STORE_PASS,
+        total_amount: payload.amount,
+        currency: "BDT",
+        tran_id: payload.transactionId,
+        success_url:envVars.SSL.SSL_SUCCESS_BACKEND_URL,
+        fail_url: envVars.SSL.SSL_FAIL_BACKEND_URL, 
+        cancel_url: envVars.SSL.SSL_CANCEL_BACKEND_URL,
+        shipping_method: "N/A",
+        product_name: "Tour",
+        product_category: "Services",
+        product_profile: "General",
+        cus_name: payload.name,
+        cus_email: payload.email,
+        cus_add1: payload.address,
+        cus_add2: "N/A",
+        cus_city: "Dhaka",
+        cus_state: "Dhaka",
+        cus_postcode: "1000",
+        cus_country: "Bangladesh",
+        cus_phone: payload.phoneNumber,
+        cus_fax: "017111111111",
+        ship_name:"N/A",
+        ship_add1 : "N/A",
+        ship_add2: "N/A",
+        ship_city: "N/A",
+        ship_state: "N/A",
+        ship_postcode: "N/A",
+        ship_country: "N/A",
+        multi_card_name: "N/A",
 
     }
+
+    const response = await axios({
+        method : "POST",
+        url: envVars.SSL.SSL_PAYMENT_API,
+        data: data,
+        headers: { "content-Type": "application/x-www-form-urlencoded"}
+    })
+    return response.data;
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    }catch(error:any){
+        console.log("payment error occured", error);
+        throw new AppError(httpStatus.BAD_REQUEST, error.messag)
+    }
+}
+
+export const SSLservice = {
+    sslPaymentInit
 }

@@ -4,7 +4,7 @@ import { ISSLCommerz } from "./sslCommerz.interface"
 import axios from "axios"
 import httpStatus from "http-status-codes"
 
-const sslPymentInit = (payload : ISSLCommerz)=>{
+const sslPaymentInit = async(payload : ISSLCommerz)=>{
     try{
        const data = {
         store_id: envVars.SSL_STORE_ID,
@@ -55,6 +55,6 @@ const sslPymentInit = (payload : ISSLCommerz)=>{
     }
 }
 
-export const SSLservice = {
+export const SSLService = {
     sslPaymentInit
 }

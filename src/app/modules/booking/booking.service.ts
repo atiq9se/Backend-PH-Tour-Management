@@ -6,6 +6,7 @@ import AppError from "../../errorHelpers/AppError";
 import { User } from './../user/user.model';
 import { BOOKING_STATUS, IBooking } from './booking.interface';
 import { PAYMENT_STATUS } from '../payment/payment.interface';
+import { SSLService } from '../sslCommerz/sslCommrz.service';
 
 const getTransactionId = () =>{
     return `tran_${Date.now()}_${Math.floor(Math.random()*1000)}`
@@ -52,7 +53,19 @@ const createBooking = async (payload : Partial<IBooking>, userId: string)=>{
         booking[0]._id,
         {payment: payment[0]._id},
         {new:true, runValidators: true, session}
-    ).populate("user").populate("tour").populate("payment");
+    )
+    .populate("user", "name email phone address")
+    .populate("tour", "title costFrom")
+    .populate("payment");
+
+    const userAddress = (updateBooking?.user as any).address
+    const sslPayload = {
+          address
+    }
+
+    const sslPayment = await SSLService.sslPaymentInit({
+         address: updateBooking?.user.address as string
+    })
 
     await session.commitTransaction();
     session.endSession()

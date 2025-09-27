@@ -1,3 +1,6 @@
+import { Booking } from './../booking/booking.model';
+import { BOOKING_STATUS } from './../booking/booking.interface';
+import { PAYMENT_STATUS } from './payment.interface';
 import { Payment } from "./payment.model";
 
 const successPayment = async(query: Record<string, string>)=>{
@@ -15,46 +18,25 @@ const successPayment = async(query: Record<string, string>)=>{
     //     ...payload
     // }], {session})
 
-    const payment = await Payment.findByIdAndUpdate({transactionId:}, [{
-        booking: booking[0]._id,
-        status: PAYMENT_STATUS.UNPAID,
-        transactionId: transactionId,
-        amount: amount
-    }],{session})
-
-    const updateBooking = await Booking
-    .findByIdAndUpdate(
-        booking[0]._id,
-        {payment: payment[0]._id},
-        {new:true, runValidators: true, session}
-    )
+    const updatePayment = await Payment.findByIdAndUpdate({transactionId:query.transactionId},{
+        status: PAYMENT_STATUS.PAID
+    },{new:true, runValidators: true, session})
+    
+    await Booking
+        .findByIdAndUpdate(
+            updatePayment?.booking,
+            {status: BOOKING_STATUS.COMPLETE},
+            {new:true, runValidators: true, session}
+        )
     .populate("user", "name email phone address")
     .populate("tour", "title costFrom")
-    .populate("payment");
-
-    const userAddress = (updateBooking?.user as any).address
-    const userEmail = (updateBooking?.user as any).email
-    const userPhoneNumber = (updateBooking?.user as any).userPhoneNumber
-    const userName = (updateBooking?.user as any).name
-
-    const sslPayload: ISSLCommerz = {
-          address: userAddress,
-          email: userEmail,
-          phoneNumber: userPhoneNumber,
-          name: userName,
-          amount: amount,
-          transactionId: transactionId
-    }
-
-    const sslPayment = await SSLService.sslPaymentInit(sslPayload)
-    console.log(sslPayment);
+    .populate("payment")
 
     await session.commitTransaction();
     session.endSession()
 
     return {
-        payment: sslPayment.GatewayPageURL,
-        booking: updateBooking
+        success:true,message:"Payment completed successfully"
     }
     }
     catch(error){

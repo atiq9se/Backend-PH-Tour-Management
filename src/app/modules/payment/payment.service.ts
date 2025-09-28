@@ -1,7 +1,37 @@
+import { httpStatus } from 'http-status-codes';
 import { Booking } from './../booking/booking.model';
 import { BOOKING_STATUS } from './../booking/booking.interface';
 import { PAYMENT_STATUS } from './payment.interface';
 import { Payment } from "./payment.model";
+import AppError from '../../errorHelpers/AppError';
+import { ISSLCommerz } from '../sslCommerz/sslCommerz.interface';
+import { SSLService } from '../sslCommerz/sslCommrz.service';
+
+const initPayment = async(bookingId: string)=>{
+    const payment = await Payment.findOne( { booking: bookingId } )
+    
+    if(!payment){
+        throw new AppError(httpStatus.NOT_FOUND, "Payment not found. You have not booked this count")
+    }
+
+    const booking = await Booking.findById(payment.booking)
+        const userAddress = (booking?.user as any).address
+        const userEmail = (booking?.user as any).email
+        const userPhoneNumber = (booking?.user as any).userPhoneNumber
+        const userName = (booking?.user as any).name
+    
+        const sslPayload: ISSLCommerz = {
+              address: userAddress,
+              email: userEmail,
+              phoneNumber: userPhoneNumber,
+              name: userName,
+              amount: payment.amount,
+              transactionId: payment.transactionId
+        }
+    
+        const sslPayment = await SSLService.sslPaymentInit(sslPayload)
+        return{ paymentURL:sslPayment.GatewayPageURL}
+}
 
 const successPayment = async(query: Record<string, string>)=>{
     //update booking status to confirm
@@ -89,6 +119,7 @@ const cancelPayment = async(query: Record<string, string>)=>{
 }
 
 export const PaymentService = {
+    initPayment,
     successPayment,
     failPayment,
     cancelPayment,

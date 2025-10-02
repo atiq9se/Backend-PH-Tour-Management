@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { JwtPayload } from "jsonwebtoken";
+import { BookingService } from "./booking.service";
 
 const createBooking = catchAsync(async(req: Request, res: Response)=>{
     const decodeToken = req.user as JwtPayload
@@ -15,8 +16,8 @@ const createBooking = catchAsync(async(req: Request, res: Response)=>{
     })
 })
 
-const getUserBooking = catchAsync(async(req: Request, res: Response)=>{
-       const bookings = await BookingService.getUserBooking();
+const getUserBookings = catchAsync(async(req: Request, res: Response)=>{
+       const bookings = await BookingService.getUserBookings();
 
        sendResponse(res, {
         statusCode: 201,
@@ -33,12 +34,12 @@ const getSingleBooking = catchAsync(async(req: Request, res: Response)=>{
         statusCode: 200,
         success: true,
         message: "Booking retrieved successfully",
-        data: bookings
+        data: booking
     })
 })
 
-const getAllBooking = catchAsync(async(req: Request, res: Response)=>{
-    const bookings = await BookingService.getAllBookings();
+const getAllBookings = catchAsync(async(req: Request, res: Response)=>{
+    const booking = await BookingService.getAllBookings();
 
     sendResponse(res, {
         statusCode: 200,
@@ -61,8 +62,8 @@ const updateBookingStatus = catchAsync(async(req: Request, res: Response)=>{
 
 export const BookingController = {
     createBooking,
-    getUserBooking,
+    getUserBookings,
     getSingleBooking,
-    getAllBooking,
+    getAllBookings,
     updateBookingStatus
 }

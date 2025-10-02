@@ -3,30 +3,30 @@ import { IPayment, PAYMENT_STATUS } from "./payment.interface";
 
 const paymentSchema = new Schema<IPayment>({
     booking: {
-        type: Schema.Types.ObjectId,
-        ref: "Booking",
-        required: true,
-        unique: true
+        type     : Schema.Types.ObjectId,
+        ref      : "Booking",
+        required : false,
+        unique   : true
     },
     transactionId : {
-        type: String,
-        required: true,
-        unique: true,
+        type     : String,
+        required : true,
+        unique   : true,
     },
     status: {
-        type: String,
-        enum: Object.values(PAYMENT_STATUS),
-        default: PAYMENT_STATUS.UNPAID
+        type    : String,
+        enum    : Object.values(PAYMENT_STATUS),
+        default : PAYMENT_STATUS.UNPAID
     },
     paymentGatewayData : {
-        type: Schema.Types.Mixed
+        type : Schema.Types.Mixed
     },
     invoiceUrl : {
-        type: String
+        type : String
     }
 },
     {
-        timestamps: true
+        timestamps : true
     }
 )
 
